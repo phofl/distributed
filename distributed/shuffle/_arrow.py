@@ -68,7 +68,7 @@ def list_of_buffers_to_table(data: list[bytes]) -> pa.Table:
 
     return pa.concat_tables(
         (deserialize_table(buffer) for buffer in data), promote=True
-    )
+    ).combine_chunks()
 
 
 def serialize_table(table: pa.Table) -> bytes:
