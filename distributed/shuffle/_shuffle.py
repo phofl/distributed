@@ -522,11 +522,12 @@ class DataFrameShuffleRun(ShuffleRun[int, "pd.DataFrame"]):
         self,
         partition_id: int,
         key: Key,
+        sort: bool = True,
         **kwargs: Any,
     ) -> pd.DataFrame:
         try:
             data = self._read_from_disk((partition_id,))
-            return convert_shards(data, self.meta)
+            return convert_shards(data, self.meta, sort)
         except KeyError:
             return self.meta.copy()
 

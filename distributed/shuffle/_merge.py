@@ -178,10 +178,10 @@ def merge_unpack(
     ext = get_worker_plugin()
     # If the partition is empty, it doesn't contain the hash column name
     left = ext.get_output_partition(
-        shuffle_id_left, barrier_left, output_partition
+        shuffle_id_left, barrier_left, output_partition, sort=False,
     ).drop(columns=_HASH_COLUMN_NAME, errors="ignore")
     right = ext.get_output_partition(
-        shuffle_id_right, barrier_right, output_partition
+        shuffle_id_right, barrier_right, output_partition, sort=False,
     ).drop(columns=_HASH_COLUMN_NAME, errors="ignore")
     return merge_chunk(
         left,
