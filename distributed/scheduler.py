@@ -3100,7 +3100,7 @@ class SchedulerState:
             len(tg) > self.total_nthreads * 2
             and len(tg.dependencies) < 5
             and sum(map(len, tg.dependencies)) < 5
-            or "fetch_raster_window" in tg.prefix.name
+            or "fetch_raster_window" in tg.name
         )
 
     def check_idle_saturated(self, ws: WorkerState, occ: float = -1.0) -> None:
