@@ -3691,6 +3691,7 @@ class Scheduler(SchedulerState, ServerNode):
     _client_connections_removed_total: int
     _workers_added_total: int
     _workers_removed_total: int
+    _active_graph_updates: int
 
     def __init__(
         self,
@@ -4054,6 +4055,7 @@ class Scheduler(SchedulerState, ServerNode):
         self._client_connections_removed_total = 0
         self._workers_added_total = 0
         self._workers_removed_total = 0
+        self._active_graph_updates = 0
 
     ##################
     # Administration #
@@ -4846,6 +4848,7 @@ class Scheduler(SchedulerState, ServerNode):
         stimulus_id: str | None = None,
     ) -> None:
         start = time()
+        self._active_graph_updates += 1
         try:
             try:
                 graph = deserialize(graph_header, graph_frames).data
@@ -4918,8 +4921,11 @@ class Scheduler(SchedulerState, ServerNode):
                     # (which may not have been added to who_wants yet)
                     client=client,
                 )
-        end = time()
-        self.digest_metric("update-graph-duration", end - start)
+        finally:
+            self._active_graph_updates -= 1
+            assert self._active_graph_updates >= 0
+            end = time()
+            self.digest_metric("update-graph-duration", end - start)
 
     def _generate_taskstates(
         self,
@@ -8609,6 +8615,10 @@ class Scheduler(SchedulerState, ServerNode):
 
         if self.transition_counter != self._idle_transition_counter:
             self._idle_transition_counter = self.transition_counter
+            self.idle_since = None
+            return None
+
+        if self._active_graph_updates > 0:
             self.idle_since = None
             return None
 
