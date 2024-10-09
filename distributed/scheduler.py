@@ -3094,7 +3094,8 @@ class SchedulerState:
         tg = ts.group
         # TODO short-circuit to True if `not ts.dependencies`?
         return (
-            len(tg.dependencies) < self.rootish_tg_threshold
+            len(tg) > self.total_nthreads * 2
+            and len(tg.dependencies) < self.rootish_tg_threshold
             and sum(map(len, tg.dependencies)) < self.rootish_tg_dependencies_threshold
         )
 
